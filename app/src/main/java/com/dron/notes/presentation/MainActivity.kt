@@ -1,19 +1,11 @@
 package com.dron.notes.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.dron.notes.presentation.screens.creation.CreateNoteScreen
-import com.dron.notes.presentation.screens.notes.NotesScreen
+import com.dron.notes.presentation.navigation.CustomNavGraph
+import com.dron.notes.presentation.navigation.NavGraph
 import com.dron.notes.presentation.ui.theme.NotesTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,17 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NotesTheme {
-
-                CreateNoteScreen()
-//                NotesScreen(
-//                    onNoteClick = {
-//                        Log.d("MainActivity", "onNoteClick: $it")
-//                    },
-//                    onAddNoteClick = {
-//                        Log.d("MainActivity", "onAddNoteClick")
-//                    }
-//
-//                )
+                NavGraph()
             }
         }
     }
