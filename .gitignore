@@ -13,3 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Android Studio
+.idea/deviceManager.xml
+.idea/deploymentTargetSelector.xml
+.idea/migrations.xml

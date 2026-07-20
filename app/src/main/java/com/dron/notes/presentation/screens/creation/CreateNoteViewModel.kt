@@ -1,8 +1,10 @@
 package com.dron.notes.presentation.screens.creation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dron.notes.data.NotesRepositoryImpl
 import com.dron.notes.data.TestNotesRepositoryImpl
 import com.dron.notes.domain.AddNoteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,8 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class CreateNoteViewModel: ViewModel() {
-    private val repository = TestNotesRepositoryImpl
+class CreateNoteViewModel(context: Context): ViewModel() {
+    private val repository = NotesRepositoryImpl.getInstance(context)
     private val addNoteUseCase = AddNoteUseCase(repository)
     private val _state = MutableStateFlow<CreateNoteState>(CreateNoteState.Creation())
     val state = _state.asStateFlow()

@@ -2,9 +2,11 @@
 
 package com.dron.notes.presentation.screens.notes
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dron.notes.data.NotesRepositoryImpl
 import com.dron.notes.data.TestNotesRepositoryImpl
 import com.dron.notes.domain.AddNoteUseCase
 import com.dron.notes.domain.DeleteNoteUseCase
@@ -27,8 +29,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NotesViewModel: ViewModel() {
-    private val repository = TestNotesRepositoryImpl
+class NotesViewModel(context: Context): ViewModel() {
+    private val repository = NotesRepositoryImpl.getInstance(context)
     private val getAllNotesCaseUse = GetAllNotesCaseUse(repository)
     private val searchNotesUseCase = SearchNotesUseCase(repository)
     private val switchPinnedStatusUseCase = SwitchPinnedStatusUseCase(repository)
