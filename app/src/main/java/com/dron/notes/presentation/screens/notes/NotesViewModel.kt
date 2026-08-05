@@ -2,41 +2,31 @@
 
 package com.dron.notes.presentation.screens.notes
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dron.notes.data.NotesRepositoryImpl
-import com.dron.notes.data.TestNotesRepositoryImpl
-import com.dron.notes.domain.AddNoteUseCase
-import com.dron.notes.domain.DeleteNoteUseCase
-import com.dron.notes.domain.EditNoteUseCase
-import com.dron.notes.domain.GetAllNotesCaseUse
-import com.dron.notes.domain.GetNoteUseCase
+import com.dron.notes.domain.GetAllNotesUseCase
 import com.dron.notes.domain.Note
 import com.dron.notes.domain.SearchNotesUseCase
 import com.dron.notes.domain.SwitchPinnedStatusUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NotesViewModel(context: Context): ViewModel() {
-    private val repository = NotesRepositoryImpl.getInstance(context)
-    private val getAllNotesCaseUse = GetAllNotesCaseUse(repository)
-    private val searchNotesUseCase = SearchNotesUseCase(repository)
-    private val switchPinnedStatusUseCase = SwitchPinnedStatusUseCase(repository)
+@HiltViewModel
+class NotesViewModel @Inject constructor(
+    private val getAllNotesUseCase: GetAllNotesUseCase,
+    private val searchNotesUseCase: SearchNotesUseCase,
+    private val switchPinnedStatusUseCase: SwitchPinnedStatusUseCase
+): ViewModel() {
 
     private val query = MutableStateFlow("")
-
     private val _state = MutableStateFlow(NotesScreenState())
     val state = _state.asStateFlow()
 
@@ -47,7 +37,7 @@ class NotesViewModel(context: Context): ViewModel() {
             }
             .flatMapLatest {input ->
                 if (input.isBlank()) {
-                    getAllNotesCaseUse()
+                    getAllNotesUseCase()
                 } else {
                     searchNotesUseCase(input)
                 }

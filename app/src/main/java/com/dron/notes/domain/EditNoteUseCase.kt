@@ -1,6 +1,8 @@
 package com.dron.notes.domain
 
-class EditNoteUseCase(
+import javax.inject.Inject
+
+class EditNoteUseCase @Inject constructor(
     private val repository: NotesRepository
 ) {
     suspend operator fun invoke(note: Note) {

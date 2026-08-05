@@ -48,22 +48,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dron.notes.R
+import com.dron.notes.domain.ContentItem
 import com.dron.notes.domain.Note
+import com.dron.notes.presentation.NotesApplication
 import com.dron.notes.presentation.screens.creation.CreateNoteViewModel
 import com.dron.notes.presentation.utils.DateFormatter
 
 @Composable
 fun NotesScreen(
     modifier: Modifier = Modifier,
-    context: Context = LocalContext.current.applicationContext,
-    viewModel: NotesViewModel = viewModel{
-        NotesViewModel(context)
-    },
     onNoteClick: (Note) -> Unit,
     onAddNoteClick: () -> Unit
 ) {
+
+//    val app = LocalContext.current.applicationContext as NotesApplication
+//    val component = app.component
+
+//    val viewModel: NotesViewModel = viewModel {
+//        NotesViewModel(
+//            component.getAllNotesUseCase,
+//            component.searchNotesUseCase,
+//            component.switchPinnedStatusUseCase
+//        )
+//    }
+
+    val viewModel: NotesViewModel = hiltViewModel()
+
     val state by viewModel.state.collectAsState()
     // Проверяем, есть ли вообще заметки
     val hasNotes = state.pinnedNotes.isNotEmpty() || state.otherNotes.isNotEmpty()
@@ -295,14 +309,20 @@ fun NoteCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = modifier.height(24.dp))
-        Text(
-            text = note.content,
-            fontSize = 16.sp,
-            maxLines = 3,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium,
-            overflow = TextOverflow.Ellipsis
-        )
+        note.content
+            .filterIsInstance<ContentItem.Text>()
+            .joinToString ("\n") { it.content }
+            .let {
+            Text(
+                text = it,
+                fontSize = 16.sp,
+                maxLines = 3,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
     }
 
 }

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class Note(
     val id: Int,
     val title: String,
-    val content: String,
+    val content: List<ContentItem>,
     val updateAt: Long,
     val isPinned: Boolean
 )

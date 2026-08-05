@@ -34,19 +34,23 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dron.notes.presentation.NotesApplication
 import com.dron.notes.presentation.utils.DateFormatter
 
 
 @Composable
 fun CreateNoteScreen(
     modifier: Modifier = Modifier,
-    context: Context = LocalContext.current.applicationContext,
-    viewModel: CreateNoteViewModel = viewModel{
-        CreateNoteViewModel(context)
-    },
     onFinished: () -> Unit
 ) {
+    // Получаем Component из Application
+    //val app = LocalContext.current.applicationContext as NotesApplication
+    //val component = app.component
+
+    val viewModel: CreateNoteViewModel = hiltViewModel()
 
     val state = viewModel.state.collectAsState()
     val currentState = state.value

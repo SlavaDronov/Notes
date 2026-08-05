@@ -1,22 +1,27 @@
 package com.dron.notes.data
 
 import android.content.Context
+import com.dron.notes.domain.ContentItem
 import com.dron.notes.domain.Note
 import com.dron.notes.domain.NotesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class NotesRepositoryImpl private constructor(context: Context): NotesRepository {
-    private val notesDatabase = NotesDatabase.getInstance(context)
-    private val notesDao = notesDatabase.notesDao()
+@Singleton
+class NotesRepositoryImpl @Inject constructor(
+    private val notesDao: NotesDao
+): NotesRepository {
 
     override suspend fun addNote(
         title: String,
-        content: String,
+        content: List<ContentItem>,
         isPinned: Boolean,
         updateAt: Long
     ) {
-        val noteDbModel = NoteDbModel(0, title, content, updateAt, isPinned)
+        val note = Note(0, title, content, updateAt, isPinned)
+        val noteDbModel = note.toDbModel()
         notesDao.addNote(noteDbModel)
     }
 
@@ -44,20 +49,5 @@ class NotesRepositoryImpl private constructor(context: Context): NotesRepository
 
     override suspend fun switchPinnedStatus(noteId: Int) {
         notesDao.switchPinnedStatus(noteId)
-    }
-
-    companion object{
-        private val LOCK = Any()
-        private var instance: NotesRepositoryImpl? = null
-
-        fun getInstance(context: Context): NotesRepositoryImpl {
-            instance?.let { return it }
-            synchronized(LOCK) {
-                instance?.let { return it }
-                return NotesRepositoryImpl(context).also {
-                    instance = it
-                }
-            }
-        }
     }
 }
