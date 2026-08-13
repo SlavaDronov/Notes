@@ -2,8 +2,9 @@
 
 package com.dron.notes.presentation.screens.editing
 
-import android.content.Context
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -26,42 +26,48 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dron.notes.domain.ContentItem
-import com.dron.notes.presentation.NotesApplication
-import com.dron.notes.presentation.screens.creation.CreateNoteCommand
+import com.dron.notes.presentation.screens.common.ContentList  // ← ИСПОЛЬЗУЕМ ОБЩИЙ КОМПОНЕНТ
 import com.dron.notes.presentation.screens.editing.EditNoteCommand.*
+import com.dron.notes.presentation.ui.theme.CustomIcons
 import com.dron.notes.presentation.utils.DateFormatter
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditNoteScreen(
     modifier: Modifier = Modifier,
     noteId: Int,
     onFinished: () -> Unit
 ) {
-        val viewModel: EditNoteViewModel = hiltViewModel(
+    val viewModel: EditNoteViewModel = hiltViewModel(
         creationCallback = { factory: EditNoteViewModel.Factory ->
-            factory.create(noteId)  // ← Передаем noteId
+            factory.create(noteId)
         }
     )
 
     val state = viewModel.state.collectAsState()
     val currentState = state.value
 
-    when(currentState) {
+    // Добавляем выбор изображения (как в CreateNoteScreen)
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                viewModel.processCommand(EditNoteCommand.AddImage(it))
+            }
+        }
+    )
 
+    when (currentState) {
         is EditNoteState.Editing -> {
             Scaffold(
                 modifier = modifier,
@@ -80,35 +86,47 @@ fun EditNoteScreen(
                             navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                             actionIconContentColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        actions = {
-                            Icon(
-                                modifier = Modifier
-                                    .padding(end = 16.dp)
-                                    .clickable {                    
-                                        viewModel.processCommand(EditNoteCommand.Delete)
-                                    },
-                                imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Delete note"
-                            )
-                        },
                         navigationIcon = {
                             Icon(
                                 modifier = Modifier
                                     .padding(start = 16.dp, end = 8.dp)
-                                    .clickable{
+                                    .clickable {
                                         viewModel.processCommand(EditNoteCommand.Back)
                                     },
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
+                        },
+                        actions = {
+                            // КНОПКА УДАЛЕНИЯ ЗАМЕТКИ
+                            Icon(
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .clickable {
+                                        viewModel.processCommand(EditNoteCommand.Delete)
+                                    },
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Delete note"
+                            )
+                            // КНОПКА ДОБАВЛЕНИЯ ИЗОБРАЖЕНИЯ
+                            Icon(
+                                modifier = Modifier
+                                    .padding(end = 24.dp)
+                                    .clickable {
+                                        imagePicker.launch("image/*")
+                                    },
+                                imageVector = CustomIcons.addPhoto,
+                                contentDescription = "Add photo from gallery",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
-
                     )
                 }
-            ) {innerPadding ->
+            ) { innerPadding ->
                 Column(
                     modifier = Modifier.padding(innerPadding)
                 ) {
+                    // Title
                     TextField(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -134,11 +152,11 @@ fun EditNoteScreen(
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-
-
                             )
                         }
                     )
+
+                    // Date
                     Text(
                         modifier = Modifier.padding(horizontal = 24.dp),
                         text = DateFormatter.formatDateToString(currentState.note.updateAt),
@@ -146,16 +164,24 @@ fun EditNoteScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    currentState.note.content.filterIsInstance<ContentItem.Text>().forEach {contentItem ->
-                        TextContent(
-                            modifier = Modifier.weight(1f),
-                             text = contentItem.content,
-                            onTextChanged = {
-                                viewModel.processCommand(EditNoteCommand.InputContent(it))
-                            }
-                        )
-                    }
+                    // ИСПОЛЬЗУЕМ ОБЩИЙ КОМПОНЕНТ ContentList
+                    ContentList(
+                        modifier = Modifier.weight(1f),
+                        content = currentState.note.content,
+                        onDeleteImageClick = { index ->
+                            viewModel.processCommand(EditNoteCommand.DeleteImage(index))
+                        },
+                        onTextChange = { index, text ->
+                            viewModel.processCommand(
+                                EditNoteCommand.InputContent(
+                                    content = text,
+                                    index = index
+                                )
+                            )
+                        }
+                    )
 
+                    // Save Button
                     Button(
                         modifier = Modifier
                             .padding(horizontal = 24.dp)
@@ -172,59 +198,26 @@ fun EditNoteScreen(
                             ),
                             contentColor = MaterialTheme.colorScheme.onPrimary,
                             disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-
                         )
                     ) {
-                        Text(
-                            text = "Save Note"
-                        )
+                        Text(text = "Save Note")
                     }
                 }
             }
         }
+
         EditNoteState.Finished -> {
             LaunchedEffect(Unit) {
                 onFinished()
             }
-
         }
 
         EditNoteState.Initial -> {
-
-        }
-    }
-}
-
-@Composable
-private fun TextContent(
-    modifier: Modifier = Modifier,
-    text: String,
-    onTextChanged: (String) -> Unit
-) {
-    TextField(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-             value = text,
-        onValueChange = onTextChanged,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        ),
-        textStyle = TextStyle(
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        placeholder = {
+            // Показываем загрузку
             Text(
-                text = "Note Something down",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-
-
+                text = "Loading...",
+                modifier = Modifier.padding(16.dp)
             )
         }
-    )
+    }
 }

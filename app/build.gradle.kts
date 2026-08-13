@@ -34,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -63,6 +63,9 @@ dependencies {
     // ✅ ДОБАВИТЬ HILT
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+
+    implementation(libs.coil.compose)
+    //implementation(libs.coil.network.okhttp)
 
     // ✅ ДОБАВИТЬ HILT NAVIGATION COMPOSE
     implementation(libs.androidx.hilt.navigation.compose)
