@@ -106,7 +106,7 @@ val viewModel: EditNoteViewModel = hiltViewModel(
         factory.create(noteId)
     }
 )
-
+---
 ## 6. Технический стек
 
 - UI: Jetpack Compose
