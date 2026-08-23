@@ -246,4 +246,4 @@ Slava Dronov
 
 ---
 
-Сделано с на Kotlin и Jetpack Compose
+Сделано на Kotlin и Jetpack Compose
