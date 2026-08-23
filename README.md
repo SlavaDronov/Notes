@@ -71,11 +71,24 @@
 
 ## 5. Dependency Injection (Hilt)
 
-**Модули:**
-- DataModule: создание Database и Dao
-- RepositoryModule: связывание интерфейса и реализации
+В проекте используется **Hilt** для управления зависимостями.
 
-**Assisted Injection (EditNoteViewModel):**
+### Модули
+
+- **DataModule** — предоставляет экземпляры Room Database и Dao
+- **RepositoryModule** — связывает интерфейс `NotesRepository` с реализацией `NotesRepositoryImpl`
+
+### Автоматическое внедрение
+
+Большинство зависимостей внедряются автоматически через конструктор с аннотацией `@Inject constructor`:
+
+- Все **UseCase** (`AddNoteUseCase`, `EditNoteUseCase`, `DeleteNoteUseCase`, `GetAllNotesUseCase`, `GetNoteUseCase`, `SearchNotesUseCase`, `SwitchPinnedStatusUseCase`)
+- **CreateNoteViewModel**
+- **NotesViewModel**
+
+### Assisted Injection
+
+Для `EditNoteViewModel` используется **Assisted Injection**, так как требуется передать динамический параметр `noteId` из навигации.
 
 ```kotlin
 @HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
@@ -84,12 +97,21 @@ class EditNoteViewModel @AssistedInject constructor(
     private val editNoteUseCase: EditNoteUseCase,
     private val deleteNoteUseCase: DeleteNoteUseCase,
     @Assisted("noteId") private val noteId: Int
-) : ViewModel()
+) : ViewModel() {
+    // ...
+}
 
 @AssistedFactory
 interface Factory {
     fun create(@Assisted("noteId") noteId: Int): EditNoteViewModel
 }
+
+// Использование в Compose-экране
+val viewModel: EditNoteViewModel = hiltViewModel(
+    creationCallback = { factory: EditNoteViewModel.Factory ->
+        factory.create(noteId)
+    }
+)
 ```
 
 ---
