@@ -1,121 +1,83 @@
-README.md
+# Notes — Приложение для заметок
 
-================================================================================
-NOTES — ПРИЛОЖЕНИЕ ДЛЯ ЗАМЕТОК
-================================================================================
+Современное приложение для заметок с поддержкой текста и изображений. Построено на Clean Architecture с использованием Jetpack Compose, Room и Hilt.
 
-Современное приложение для заметок с поддержкой текста и изображений.
-Построено на Clean Architecture с использованием Jetpack Compose, Room и Hilt.
+---
 
+## 1. О проекте
 
-================================================================================
-1. О ПРОЕКТЕ
-================================================================================
+Приложение позволяет создавать, редактировать, удалять и искать заметки. Поддерживает добавление изображений из галереи, закрепление важных заметок и поиск по содержимому.
 
-Приложение позволяет создавать, редактировать, удалять и искать заметки.
-Поддерживает добавление изображений из галереи, закрепление важных заметок
-и поиск по содержимому.
+---
 
+## 2. Архитектура (Clean Architecture)
 
-================================================================================
-2. АРХИТЕКТУРА (Clean Architecture)
-================================================================================
+**Presentation Layer (UI)**
+- UI: Jetpack Compose
+- ViewModels: управление состоянием
+- Screens: NotesScreen, CreateNoteScreen, EditNoteScreen
 
-┌─────────────────────────────────────────────────────────────────┐
-│                    PRESENTATION LAYER                          │
-│  UI (Compose) → ViewModel → State/Event                       │
-│                                                               │
-│  Screens: NotesScreen, CreateNoteScreen, EditNoteScreen       │
-│  ViewModels: NotesViewModel, CreateNoteViewModel,             │
-│              EditNoteViewModel                                │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                       DOMAIN LAYER                             │
-│  Business Logic → UseCases → Repository Interfaces            │
-│                                                               │
-│  Models: Note, ContentItem (Text/Image)                      │
-│  UseCases: AddNote, EditNote, DeleteNote, GetNote,           │
-│            GetAllNotes, SearchNotes, SwitchPinnedStatus      │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                         DATA LAYER                             │
-│  Repository Implementation → Room Database → Image Manager    │
-│                                                               │
-│  Room: NoteDbModel, ContentItemDbModel, NotesDao             │
-│  ImageFileManager: копирование/удаление фото                 │
-│  Mappers: Domain ↔ Data преобразование                       │
-└─────────────────────────────────────────────────────────────────┘
+**Domain Layer (Бизнес-логика)**
+- Models: Note, ContentItem (Text / Image)
+- UseCases: AddNote, EditNote, DeleteNote, GetNote, GetAllNotes, SearchNotes, SwitchPinnedStatus
+- Repository Interfaces: контракты для работы с данными
 
+**Data Layer (Данные)**
+- Room Database: NoteDbModel, ContentItemDbModel, NotesDao
+- ImageFileManager: копирование и удаление фото
+- Mappers: преобразование Domain ↔ Data
 
-================================================================================
-3. БАЗА ДАННЫХ (ROOM)
-================================================================================
+---
 
-Схема БД:
+## 3. База данных (Room)
 
-┌─────────────────────────────────────────────────────────────────┐
-│                        Notes                                   │
-├─────────────────────────────────────────────────────────────────┤
-│ id: Int (PK, autoGenerate)                                    │
-│ title: String                                                  │
-│ updateAt: Long                                                 │
-│ isPinned: Boolean                                              │
-└─────────────────────────────────────────────────────────────────┘
-                            ↓ (1:N)
-┌─────────────────────────────────────────────────────────────────┐
-│                      Content                                   │
-├─────────────────────────────────────────────────────────────────┤
-│ noteId: Int (FK → Notes.id)                                   │
-│ contentType: TEXT / IMAGE                                      │
-│ content: String (текст или URL изображения)                    │
-│ order: Int (порядок в заметке)                                 │
-│ (PK: noteId + order)                                          │
-└─────────────────────────────────────────────────────────────────┘
+**Таблица Notes**
+- id: Int (первичный ключ, автоинкремент)
+- title: String
+- updateAt: Long
+- isPinned: Boolean
 
-Особенности:
-- Связь 1:N между Notes и Content
+**Таблица Content** (связь 1:N с Notes)
+- noteId: Int (внешний ключ → Notes.id)
+- contentType: TEXT или IMAGE
+- content: String (текст или URL изображения)
+- order: Int (порядок в заметке)
+- Первичный ключ: noteId + order
+
+**Особенности:**
 - Каскадное удаление (CASCADE)
 - Транзакции для атомарных операций
 - Поиск по заголовку и контенту через JOIN
 
-Версия БД: 3
+**Версия БД:** 3
 
-Миграции:
+**Миграции:**
 - Версия 1: Создание Notes (с JSON полем content)
 - Версия 2: Добавление таблицы content
 - Версия 3: Оптимизация структуры
 
+---
 
-================================================================================
-4. УПРАВЛЕНИЕ ИЗОБРАЖЕНИЯМИ
-================================================================================
+## 4. Управление изображениями
 
-ImageFileManager:
+**ImageFileManager**
 - Копирование фото из галереи во внутреннее хранилище
 - Удаление фото при удалении заметки
 - Проверка принадлежности файла приложению
 
-Путь хранения:
-/data/data/com.dron.notes/files/IMG_<UUID>.jpg
+**Путь хранения:** `/data/data/com.dron.notes/files/IMG_<UUID>.jpg`
 
+---
 
-================================================================================
-5. DEPENDENCY INJECTION (HILT)
-================================================================================
+## 5. Dependency Injection (Hilt)
 
-Модули:
+**Модули:**
+- DataModule: создание Database и Dao
+- RepositoryModule: связывание интерфейса и реализации
 
-DataModule:
-  - provideNotesDatabase() → создание Room Database
-  - provideNotesDao() → предоставление Dao
+**Assisted Injection (EditNoteViewModel):**
 
-RepositoryModule:
-  - bindNotesRepository() → связывание интерфейса и реализации
-
-Assisted Injection (EditNoteViewModel):
-
+```kotlin
 @HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
 class EditNoteViewModel @AssistedInject constructor(
     private val getNoteUseCase: GetNoteUseCase,
@@ -128,53 +90,49 @@ class EditNoteViewModel @AssistedInject constructor(
 interface Factory {
     fun create(@Assisted("noteId") noteId: Int): EditNoteViewModel
 }
+```
 
+---
 
-================================================================================
-6. ТЕХНИЧЕСКИЙ СТЕК
-================================================================================
+## 6. Технический стек
 
-UI:                    Jetpack Compose
-DI:                    Hilt (Dagger)
-Database:              Room
-Images:                Coil (AsyncImage)
-Navigation:            Jetpack Navigation Compose
-Coroutines:            Kotlin Coroutines + Flow
-Testing:               JUnit, Espresso
+- UI: Jetpack Compose
+- DI: Hilt (Dagger)
+- Database: Room
+- Images: Coil (AsyncImage)
+- Navigation: Jetpack Navigation Compose
+- Coroutines: Kotlin Coroutines + Flow
+- Testing: JUnit, Espresso
 
+---
 
-================================================================================
-7. СТРУКТУРА ПРОЕКТА
-================================================================================
+## 7. Структура проекта
 
+```
 app/src/main/java/com/dron/notes/
-│
 ├── data/
-│   ├── ContentItemDbModel.kt      # Модель контента для Room
-│   ├── ImageFileManager.kt        # Управление изображениями
-│   ├── Mappers.kt                  # Преобразование Domain ↔ Data
-│   ├── NoteDbModel.kt              # Модель заметки для Room
-│   ├── NotesDao.kt                 # DAO интерфейс
-│   ├── NotesDatabase.kt            # Room Database
-│   ├── NotesRepositoryImpl.kt      # Реализация репозитория
-│   └── NoteWithContentDbModel.kt   # Объединение заметки и контента
-│
+│   ├── ContentItemDbModel.kt
+│   ├── ImageFileManager.kt
+│   ├── Mappers.kt
+│   ├── NoteDbModel.kt
+│   ├── NotesDao.kt
+│   ├── NotesDatabase.kt
+│   ├── NotesRepositoryImpl.kt
+│   └── NoteWithContentDbModel.kt
 ├── di/
-│   ├── DataModule.kt               # Hilt модуль для Database
-│   └── RepositoryModule.kt         # Hilt модуль для Repository
-│
+│   ├── DataModule.kt
+│   └── RepositoryModule.kt
 ├── domain/
 │   ├── AddNoteUseCase.kt
-│   ├── ContentItem.kt              # Sealed class: Text/Image
+│   ├── ContentItem.kt
 │   ├── DeleteNoteUseCase.kt
 │   ├── EditNoteUseCase.kt
 │   ├── GetAllNotesUseCase.kt
 │   ├── GetNoteUseCase.kt
-│   ├── Note.kt                     # Domain модель заметки
-│   ├── NotesRepository.kt          # Интерфейс репозитория
+│   ├── Note.kt
+│   ├── NotesRepository.kt
 │   ├── SearchNotesUseCase.kt
 │   └── SwitchPinnedStatusUseCase.kt
-│
 └── presentation/
     ├── MainActivity.kt
     ├── NotesApplication.kt
@@ -199,43 +157,33 @@ app/src/main/java/com/dron/notes/
     │   └── CustomIcons.kt
     └── utils/
         └── DateFormatter.kt
+```
 
+---
 
-================================================================================
-8. ОСНОВНЫЕ ФУНКЦИИ
-================================================================================
+## 8. Основные функции
 
-┌─────────────────────┬────────────────────────────────────────────────────────┐
-│ Функция             │ Описание                                               │
-├─────────────────────┼────────────────────────────────────────────────────────┤
-│ Создание заметки    │ Добавление текста и изображений                        │
-│ Редактирование      │ Изменение заголовка, текста, фото                      │
-│ Удаление            │ Удаление заметки и связанных фото                      │
-│ Закрепление         │ Закрепление важных заметок                            │
-│ Поиск               │ Поиск по заголовку и содержанию                       │
-│ Список заметок      │ Разделение на "Закрепленные" и "Остальные"            │
-└─────────────────────┴────────────────────────────────────────────────────────┘
+- **Создание заметки:** добавление текста и изображений
+- **Редактирование:** изменение заголовка, текста, фото
+- **Удаление:** удаление заметки и связанных фото
+- **Закрепление:** закрепление важных заметок
+- **Поиск:** поиск по заголовку и содержанию
+- **Список заметок:** разделение на "Закрепленные" и "Остальные"
 
+---
 
-================================================================================
-9. UI КОМПОНЕНТЫ (JETPACK COMPOSE)
-================================================================================
+## 9. UI компоненты (Jetpack Compose)
 
-┌─────────────────────┬────────────────────────────────────────────────────────┐
-│ Компонент           │ Назначение                                             │
-├─────────────────────┼────────────────────────────────────────────────────────┤
-│ NoteCard            │ Карточка заметки (без картинки)                        │
-│ NoteCardWithImage   │ Карточка заметки с превью картинки                     │
-│ ContentList         │ Список контента (текст + изображения)                  │
-│ ImageGroup          │ Группа изображений (до 2-х в ряд)                      │
-│ ImageContent        │ Одно изображение с кнопкой удаления                    │
-│ TextContent         │ Поле для ввода текста                                  │
-└─────────────────────┴────────────────────────────────────────────────────────┘
+- NoteCard: карточка заметки (без картинки)
+- NoteCardWithImage: карточка заметки с превью картинки
+- ContentList: список контента (текст + изображения)
+- ImageGroup: группа изображений (до 2-х в ряд)
+- ImageContent: одно изображение с кнопкой удаления
+- TextContent: поле для ввода текста
 
+---
 
-================================================================================
-10. ОСОБЕННОСТИ РЕАЛИЗАЦИИ
-================================================================================
+## 10. Особенности реализации
 
 - Transaction: атомарные операции при добавлении и редактировании
 - Flow: реактивное обновление UI при изменении данных
@@ -245,33 +193,32 @@ app/src/main/java/com/dron/notes/
 - Splash Screen: экран загрузки при запуске
 - Assisted Injection: передача динамических параметров (noteId)
 
+---
 
-================================================================================
-11. ЗАПУСК ПРИЛОЖЕНИЯ
-================================================================================
+## 11. Запуск приложения
 
-Требования:
+**Требования:**
 - Android Studio Meerkat (2025.12.1) или выше
 - Kotlin 2.0.21
 - JDK 17
 - Android API 36
 
-Команды:
+**Команды:**
+```bash
 git clone https://github.com/yourusername/Notes.git
 ./gradlew build
 ./gradlew installDebug
+```
 
+---
 
-================================================================================
-12. ЛИЦЕНЗИЯ
-================================================================================
+## 12. Лицензия
 
 Apache License 2.0
 
+---
 
-================================================================================
-13. РАЗРАБОТЧИК
-================================================================================
+## 13. Разработчик
 
 Slava Dronov
 
