@@ -65,19 +65,25 @@
 - Удаление фото при удалении заметки
 - Проверка принадлежности файла приложению
 
-**Путь хранения:** `/data/data/com.dron.notes/files/IMG_<UUID>.jpg`
+**Путь хранения:** /data/data/com.dron.notes/files/IMG_<UUID>.jpg
 
 ---
 
 ## 5. Dependency Injection (Hilt)
 
+Проект использует Hilt для внедрения зависимостей.
+
 **Модули:**
-- DataModule: создание Database и Dao
-- RepositoryModule: связывание интерфейса и реализации
+- DataModule: создание Room Database и Dao
+- RepositoryModule: связывание интерфейса NotesRepository с реализацией NotesRepositoryImpl
 
-**Assisted Injection (EditNoteViewModel):**
+**Что внедряется автоматически (через @Inject constructor):**
+- Все UseCase (AddNoteUseCase, EditNoteUseCase, DeleteNoteUseCase, и т.д.)
+- CreateNoteViewModel, NotesViewModel
 
-```kotlin
+**Assisted Injection (для EditNoteViewModel):**
+Используется для передачи noteId из навигации:
+
 @HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
 class EditNoteViewModel @AssistedInject constructor(
     private val getNoteUseCase: GetNoteUseCase,
@@ -90,7 +96,14 @@ class EditNoteViewModel @AssistedInject constructor(
 interface Factory {
     fun create(@Assisted("noteId") noteId: Int): EditNoteViewModel
 }
-```
+
+Использование в Screen:
+
+val viewModel: EditNoteViewModel = hiltViewModel(
+    creationCallback = { factory: EditNoteViewModel.Factory ->
+        factory.create(noteId)
+    }
+)
 
 ---
 
@@ -108,7 +121,6 @@ interface Factory {
 
 ## 7. Структура проекта
 
-```
 app/src/main/java/com/dron/notes/
 ├── data/
 │   ├── ContentItemDbModel.kt
@@ -157,18 +169,17 @@ app/src/main/java/com/dron/notes/
     │   └── CustomIcons.kt
     └── utils/
         └── DateFormatter.kt
-```
 
 ---
 
 ## 8. Основные функции
 
-- **Создание заметки:** добавление текста и изображений
-- **Редактирование:** изменение заголовка, текста, фото
-- **Удаление:** удаление заметки и связанных фото
-- **Закрепление:** закрепление важных заметок
-- **Поиск:** поиск по заголовку и содержанию
-- **Список заметок:** разделение на "Закрепленные" и "Остальные"
+- Создание заметки: добавление текста и изображений
+- Редактирование: изменение заголовка, текста, фото
+- Удаление: удаление заметки и связанных фото
+- Закрепление: закрепление важных заметок
+- Поиск: поиск по заголовку и содержанию
+- Список заметок: разделение на "Закрепленные" и "Остальные"
 
 ---
 
@@ -197,18 +208,16 @@ app/src/main/java/com/dron/notes/
 
 ## 11. Запуск приложения
 
-**Требования:**
+Требования:
 - Android Studio Meerkat (2025.12.1) или выше
 - Kotlin 2.0.21
 - JDK 17
 - Android API 36
 
-**Команды:**
-```bash
+Команды:
 git clone https://github.com/yourusername/Notes.git
 ./gradlew build
 ./gradlew installDebug
-```
 
 ---
 
@@ -224,4 +233,4 @@ Slava Dronov
 
 ---
 
-Сделано с на Kotlin и Jetpack Compose
+Сделано с ❤️ на Kotlin и Jetpack Compose
