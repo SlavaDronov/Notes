@@ -1,94 +1,336 @@
-# Notes — Приложение для заметок
+# 📝 Notes
 
-Современное приложение для заметок с поддержкой текста и изображений. Построено на Clean Architecture с использованием Jetpack Compose, Room и Hilt.
+> Современное Android-приложение для создания и управления заметками с поддержкой текста и изображений.
 
----
+<p align="center">
 
-## 1. О проекте
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?style=for-the-badge\&logo=kotlin\&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-UI-4285F4?style=for-the-badge\&logo=jetpackcompose\&logoColor=white)
+![Room](https://img.shields.io/badge/Room-Database-3DDC84?style=for-the-badge\&logo=android\&logoColor=white)
+![Hilt](https://img.shields.io/badge/Hilt-DI-3DDC84?style=for-the-badge\&logo=android\&logoColor=white)
+![Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-orange?style=for-the-badge)
 
-Приложение позволяет создавать, редактировать, удалять и искать заметки. Поддерживает добавление изображений из галереи, закрепление важных заметок и поиск по содержимому.
-
----
-
-## 2. Архитектура (Clean Architecture)
-
-**Presentation Layer (UI)**
-- UI: Jetpack Compose
-- ViewModels: управление состоянием
-- Screens: NotesScreen, CreateNoteScreen, EditNoteScreen
-
-**Domain Layer (Бизнес-логика)**
-- Models: Note, ContentItem (Text / Image)
-- UseCases: AddNote, EditNote, DeleteNote, GetNote, GetAllNotes, SearchNotes, SwitchPinnedStatus
-- Repository Interfaces: контракты для работы с данными
-
-**Data Layer (Данные)**
-- Room Database: NoteDbModel, ContentItemDbModel, NotesDao
-- ImageFileManager: копирование и удаление фото
-- Mappers: преобразование Domain ↔ Data
+</p>
 
 ---
 
-## 3. База данных (Room)
+## ✨ О проекте
 
-**Таблица Notes**
-- id: Int (первичный ключ, автоинкремент)
-- title: String
-- updateAt: Long
-- isPinned: Boolean
+**Notes** — приложение для заметок, разработанное на **Kotlin** с использованием **Jetpack Compose**.
 
-**Таблица Content** (связь 1:N с Notes)
-- noteId: Int (внешний ключ → Notes.id)
-- contentType: TEXT или IMAGE
-- content: String (текст или URL изображения)
-- order: Int (порядок в заметке)
-- Первичный ключ: noteId + order
+Приложение позволяет создавать заметки, комбинируя текст и изображения в одном документе. Важные заметки можно закреплять, а нужную информацию быстро находить с помощью поиска.
 
-**Особенности:**
-- Каскадное удаление (CASCADE)
-- Транзакции для атомарных операций
-- Поиск по заголовку и контенту через JOIN
+Проект построен на принципах **Clean Architecture**, использует **MVVM**, **Room**, **Hilt**, **Coroutines + Flow** и реактивное обновление интерфейса.
 
-**Версия БД:** 3
+### 🎯 Основные возможности
 
-**Миграции:**
-- Версия 1: Создание Notes (с JSON полем content)
-- Версия 2: Добавление таблицы content
-- Версия 3: Оптимизация структуры
+* ✍️ Создание заметок
+* 📝 Редактирование заметок
+* 🗑️ Удаление заметок
+* 🖼️ Добавление изображений из галереи
+* 📌 Закрепление важных заметок
+* 🔎 Поиск по заголовку и содержимому
+* ↕️ Сохранение порядка элементов внутри заметки
+* 🖼️ Отображение изображений в заметках
+* ⚡ Реактивное обновление UI через `Flow`
+* 💾 Локальное хранение данных через `Room`
 
 ---
 
-## 4. Управление изображениями
+## 📱 Возможности приложения
 
-**ImageFileManager**
-- Копирование фото из галереи во внутреннее хранилище
-- Удаление фото при удалении заметки
-- Проверка принадлежности файла приложению
+### 📝 Создание заметки
 
-**Путь хранения:** `/data/data/com.dron.notes/files/IMG_<UUID>.jpg`
+Заметка может содержать произвольное количество текстовых блоков и изображений.
+
+```text
+Note
+ ├── Text
+ ├── Image
+ ├── Text
+ ├── Image
+ └── Text
+```
+
+Это позволяет создавать не только обычные текстовые заметки, но и небольшие визуальные документы.
+
+### 📌 Закрепление
+
+Важные заметки можно закрепить. Они отображаются отдельно от остальных:
+
+```text
+📌 Закрепленные
+
+   Покупки
+   Идеи для проекта
+
+──────────────
+
+📝 Остальные
+
+   Заметки
+   План на неделю
+```
+
+### 🔎 Поиск
+
+Поиск выполняется по:
+
+* заголовку заметки;
+* текстовому содержимому;
+* данным, связанным с заметкой.
+
+Поиск реализован на уровне базы данных через SQL-запросы и `JOIN`.
 
 ---
 
-## 5. Dependency Injection (Hilt)
+# 🏗 Архитектура
 
-В проекте используется **Hilt** для управления зависимостями.
+Проект построен на **Clean Architecture** с разделением приложения на три основных слоя:
 
-### Модули
+```text
+┌─────────────────────────────────────┐
+│           Presentation              │
+│                                     │
+│  Compose → ViewModel → UI State     │
+└─────────────────┬───────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────┐
+│              Domain                 │
+│                                     │
+│  Models → UseCases → Repository     │
+└─────────────────┬───────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────┐
+│               Data                  │
+│                                     │
+│  Room → DAO → Repository → Storage  │
+└─────────────────────────────────────┘
+```
 
-- **DataModule** — предоставляет экземпляры Room Database и Dao
-- **RepositoryModule** — связывает интерфейс `NotesRepository` с реализацией `NotesRepositoryImpl`
+Такое разделение позволяет изолировать бизнес-логику от Android Framework и конкретной реализации хранения данных.
 
-### Автоматическое внедрение
+---
 
-Большинство зависимостей внедряются автоматически через конструктор с аннотацией `@Inject constructor`:
+## 🎨 Presentation Layer
 
-- Все **UseCase** (`AddNoteUseCase`, `EditNoteUseCase`, `DeleteNoteUseCase`, `GetAllNotesUseCase`, `GetNoteUseCase`, `SearchNotesUseCase`, `SwitchPinnedStatusUseCase`)
-- **CreateNoteViewModel**
-- **NotesViewModel**
+Отвечает за UI и управление состоянием экранов.
 
-### Assisted Injection
+**Используется:**
 
-Для `EditNoteViewModel` используется **Assisted Injection**, так как требуется передать динамический параметр `noteId` из навигации.
+* Jetpack Compose
+* ViewModel
+* State / StateFlow
+* Navigation Compose
+
+### Основные экраны
+
+* `NotesScreen` — список заметок
+* `CreateNoteScreen` — создание заметки
+* `EditNoteScreen` — редактирование заметки
+
+UI получает данные из `ViewModel` и автоматически обновляется при изменении состояния.
+
+---
+
+## 🧠 Domain Layer
+
+Содержит бизнес-логику приложения и не зависит от Android Framework.
+
+### Models
+
+```text
+Note
+ContentItem
+ ├── Text
+ └── Image
+```
+
+### Use Cases
+
+```text
+AddNoteUseCase
+EditNoteUseCase
+DeleteNoteUseCase
+GetNoteUseCase
+GetAllNotesUseCase
+SearchNotesUseCase
+SwitchPinnedStatusUseCase
+```
+
+Каждый Use Case отвечает за одну конкретную бизнес-операцию.
+
+Например:
+
+```text
+UI
+ ↓
+ViewModel
+ ↓
+EditNoteUseCase
+ ↓
+NotesRepository
+ ↓
+Room
+```
+
+---
+
+# 💾 Data Layer
+
+Data Layer отвечает за хранение и получение данных.
+
+### Основные компоненты
+
+* Room Database
+* DAO
+* Repository implementation
+* ImageFileManager
+* Data ↔ Domain mappers
+
+```text
+Room Database
+      │
+      ▼
+  NotesDao
+      │
+      ▼
+NotesRepositoryImpl
+      │
+      ▼
+ Domain Repository
+```
+
+---
+
+# 🗄 Room Database
+
+Для хранения заметок используется **Room**.
+
+## Таблица `Notes`
+
+| Поле       | Тип       | Описание                   |
+| ---------- | --------- | -------------------------- |
+| `id`       | `Int`     | Primary Key                |
+| `title`    | `String`  | Заголовок заметки          |
+| `updateAt` | `Long`    | Время последнего изменения |
+| `isPinned` | `Boolean` | Статус закрепления         |
+
+## Таблица `Content`
+
+| Поле          | Тип            | Описание                     |
+| ------------- | -------------- | ---------------------------- |
+| `noteId`      | `Int`          | Foreign Key → `Notes.id`     |
+| `contentType` | `TEXT / IMAGE` | Тип элемента                 |
+| `content`     | `String`       | Текст или путь к изображению |
+| `order`       | `Int`          | Порядок элемента             |
+
+Primary Key:
+
+```text
+(noteId + order)
+```
+
+Связь:
+
+```text
+Notes 1 ─────────── N Content
+```
+
+### Особенности базы данных
+
+* `ForeignKey` с `CASCADE`
+* транзакции для атомарных операций;
+* поддержка порядка элементов;
+* поиск через SQL `JOIN`;
+* разделение Domain и Database моделей;
+* миграции Room.
+
+### Версия базы данных
+
+**Version 3**
+
+```text
+Version 1
+   ↓
+Notes + JSON content
+
+Version 2
+   ↓
+Отдельная таблица Content
+
+Version 3
+   ↓
+Оптимизированная структура
+```
+
+---
+
+# 🖼 Работа с изображениями
+
+Для работы с изображениями используется собственный компонент:
+
+```text
+ImageFileManager
+```
+
+Он отвечает за:
+
+* копирование изображения из галереи;
+* сохранение файла во внутреннем хранилище;
+* удаление изображения;
+* проверку принадлежности файла приложению.
+
+Изображения не хранятся непосредственно в базе данных.
+
+В `Room` сохраняется путь к файлу.
+
+Пример:
+
+```text
+/data/data/com.dron.notes/files/IMG_<UUID>.jpg
+```
+
+Для отображения изображений используется **Coil / AsyncImage**.
+
+---
+
+# 💉 Dependency Injection
+
+Для Dependency Injection используется **Hilt**.
+
+### Основные модули
+
+#### `DataModule`
+
+Предоставляет:
+
+* `NotesDatabase`
+* `NotesDao`
+
+#### `RepositoryModule`
+
+Связывает интерфейс:
+
+```kotlin
+NotesRepository
+```
+
+с реализацией:
+
+```kotlin
+NotesRepositoryImpl
+```
+
+---
+
+## Assisted Injection
+
+`EditNoteViewModel` получает динамический параметр `noteId`, который приходит из Navigation.
+
+Поэтому используется **Assisted Injection**:
 
 ```kotlin
 @HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
@@ -97,16 +339,23 @@ class EditNoteViewModel @AssistedInject constructor(
     private val editNoteUseCase: EditNoteUseCase,
     private val deleteNoteUseCase: DeleteNoteUseCase,
     @Assisted("noteId") private val noteId: Int
-) : ViewModel() {
-    // ...
-}
+) : ViewModel()
+```
 
+Factory:
+
+```kotlin
 @AssistedFactory
 interface Factory {
-    fun create(@Assisted("noteId") noteId: Int): EditNoteViewModel
+    fun create(
+        @Assisted("noteId") noteId: Int
+    ): EditNoteViewModel
 }
+```
 
-// Использование в Compose-экране
+Получение ViewModel в Compose:
+
+```kotlin
 val viewModel: EditNoteViewModel = hiltViewModel(
     creationCallback = { factory: EditNoteViewModel.Factory ->
         factory.create(noteId)
@@ -114,24 +363,103 @@ val viewModel: EditNoteViewModel = hiltViewModel(
 )
 ```
 
----
-
-## 6. Технический стек
-
-- UI: Jetpack Compose
-- DI: Hilt (Dagger)
-- Database: Room
-- Images: Coil (AsyncImage)
-- Navigation: Jetpack Navigation Compose
-- Coroutines: Kotlin Coroutines + Flow
-- Testing: JUnit, Espresso
+Это позволяет корректно передавать параметры навигации непосредственно в ViewModel.
 
 ---
 
-## 7. Структура проекта
+# ⚡ Реактивность
 
+Приложение использует:
+
+* Kotlin Coroutines
+* Flow
+* StateFlow
+
+Изменение данных в Room автоматически приводит к обновлению данных в `Flow`, после чего UI получает новое состояние.
+
+```text
+Room
+ │
+ │ Flow
+ ▼
+Repository
+ │
+ ▼
+UseCase
+ │
+ ▼
+ViewModel
+ │
+ │ StateFlow
+ ▼
+Compose UI
 ```
+
+Таким образом, UI не требует ручного обновления после изменения данных.
+
+---
+
+# 🔄 Транзакции
+
+Операции создания и редактирования заметок выполняются атомарно.
+
+Например, при редактировании заметки необходимо одновременно:
+
+1. обновить информацию о заметке;
+2. обновить содержимое;
+3. добавить новые изображения;
+4. удалить старые изображения.
+
+Если операция завершается ошибкой, база данных не остается в промежуточном состоянии.
+
+---
+
+# 🎨 UI
+
+Интерфейс полностью реализован на **Jetpack Compose**.
+
+### Основные компоненты
+
+```text
+NoteCard
+NoteCardWithImage
+ContentList
+ImageGroup
+ImageContent
+TextContent
+```
+
+### `NoteCard`
+
+Карточка обычной заметки без изображения.
+
+### `NoteCardWithImage`
+
+Карточка заметки с preview изображения.
+
+### `ContentList`
+
+Отображает содержимое заметки в исходном порядке:
+
+```text
+Text
+Image
+Text
+Image
+Text
+```
+
+### `ImageGroup`
+
+Отображает изображения группами, до двух изображений в ряд.
+
+---
+
+# 📂 Структура проекта
+
+```text
 app/src/main/java/com/dron/notes/
+
 ├── data/
 │   ├── ContentItemDbModel.kt
 │   ├── ImageFileManager.kt
@@ -141,9 +469,11 @@ app/src/main/java/com/dron/notes/
 │   ├── NotesDatabase.kt
 │   ├── NotesRepositoryImpl.kt
 │   └── NoteWithContentDbModel.kt
+│
 ├── di/
 │   ├── DataModule.kt
 │   └── RepositoryModule.kt
+│
 ├── domain/
 │   ├── AddNoteUseCase.kt
 │   ├── ContentItem.kt
@@ -155,95 +485,157 @@ app/src/main/java/com/dron/notes/
 │   ├── NotesRepository.kt
 │   ├── SearchNotesUseCase.kt
 │   └── SwitchPinnedStatusUseCase.kt
+│
 └── presentation/
     ├── MainActivity.kt
     ├── NotesApplication.kt
+    │
     ├── navigation/
     │   └── NavGraph.kt
+    │
     ├── screens/
     │   ├── common/
     │   │   └── ContentComponents.kt
+    │   │
     │   ├── creation/
     │   │   ├── CreateNoteScreen.kt
     │   │   └── CreateNoteViewModel.kt
+    │   │
     │   ├── editing/
     │   │   ├── EditNoteScreen.kt
     │   │   └── EditNoteViewModel.kt
+    │   │
     │   └── notes/
     │       ├── NotesScreen.kt
     │       └── NotesViewModel.kt
+    │
     ├── theme/
     │   ├── Theme.kt
     │   ├── Typography.kt
     │   ├── Colors.kt
     │   └── CustomIcons.kt
+    │
     └── utils/
         └── DateFormatter.kt
 ```
 
 ---
 
-## 8. Основные функции
+# 🛠 Технологический стек
 
-- **Создание заметки:** добавление текста и изображений
-- **Редактирование:** изменение заголовка, текста, фото
-- **Удаление:** удаление заметки и связанных фото
-- **Закрепление:** закрепление важных заметок
-- **Поиск:** поиск по заголовку и содержанию
-- **Список заметок:** разделение на "Закрепленные" и "Остальные"
-
----
-
-## 9. UI компоненты (Jetpack Compose)
-
-- NoteCard: карточка заметки (без картинки)
-- NoteCardWithImage: карточка заметки с превью картинки
-- ContentList: список контента (текст + изображения)
-- ImageGroup: группа изображений (до 2-х в ряд)
-- ImageContent: одно изображение с кнопкой удаления
-- TextContent: поле для ввода текста
+| Технология             | Использование             |
+| ---------------------- | ------------------------- |
+| **Kotlin**             | Основной язык             |
+| **Jetpack Compose**    | UI                        |
+| **MVVM**               | Presentation architecture |
+| **Clean Architecture** | Архитектура проекта       |
+| **Hilt**               | Dependency Injection      |
+| **Room**               | Локальная база данных     |
+| **Coroutines**         | Асинхронные операции      |
+| **Flow / StateFlow**   | Реактивное состояние      |
+| **Navigation Compose** | Навигация                 |
+| **Coil**               | Загрузка изображений      |
+| **JUnit**              | Unit Testing              |
+| **Espresso**           | UI Testing                |
 
 ---
 
-## 10. Особенности реализации
+# 🧪 Testing
 
-- Transaction: атомарные операции при добавлении и редактировании
-- Flow: реактивное обновление UI при изменении данных
-- Sealed Classes: типобезопасные состояния и события
-- Clean Architecture: разделение ответственности по слоям
-- Hilt DI: автоматическое внедрение зависимостей
-- Splash Screen: экран загрузки при запуске
-- Assisted Injection: передача динамических параметров (noteId)
+Проект предусматривает тестирование с использованием:
+
+* **JUnit** — unit-тесты;
+* **Espresso** — UI-тестирование.
+
+Основная бизнес-логика вынесена в `Domain Layer`, что позволяет тестировать Use Cases независимо от UI.
 
 ---
 
-## 11. Запуск приложения
+# 🚀 Запуск проекта
 
-**Требования:**
-- Android Studio Meerkat (2025.12.1) или выше
-- Kotlin 2.0.21
-- JDK 17
-- Android API 36
+## Требования
 
-**Команды:**
+* Android Studio **Meerkat (2025.12.1)** или выше
+* Kotlin **2.0.21**
+* JDK **17**
+* Android API **36**
+
+## Клонирование
+
 ```bash
 git clone https://github.com/yourusername/Notes.git
+cd Notes
+```
+
+## Сборка
+
+```bash
 ./gradlew build
+```
+
+## Установка Debug версии
+
+```bash
 ./gradlew installDebug
 ```
 
 ---
 
-## 12. Лицензия
+# 📌 Что демонстрирует проект
 
-Apache License 2.0
+Этот проект показывает практическое применение современных подходов Android-разработки:
+
+* Clean Architecture;
+* MVVM;
+* Jetpack Compose;
+* Hilt Dependency Injection;
+* Room Database;
+* Repository Pattern;
+* Use Case Pattern;
+* Kotlin Coroutines;
+* Flow / StateFlow;
+* Assisted Injection;
+* Room Transactions;
+* локальное файловое хранилище;
+* работу с изображениями;
+* Navigation Compose;
+* разделение Domain и Data моделей.
 
 ---
 
-## 13. Разработчик
+# 🔮 Возможные улучшения
 
-Slava Dronov
+В дальнейшем приложение можно расширить:
+
+* ☁️ синхронизацией заметок с облаком;
+* 🔐 блокировкой заметок;
+* 🌙 дополнительными темами оформления;
+* 🏷️ категориями и тегами;
+* 📅 напоминаниями;
+* 📤 экспортом заметок;
+* 🔄 резервным копированием;
+* 📎 поддержкой дополнительных типов файлов.
 
 ---
 
-Сделано на Kotlin и Jetpack Compose
+# 📄 Лицензия
+
+Проект распространяется под лицензией **Apache License 2.0**.
+
+---
+
+# 👨‍💻 Автор
+
+**Slava Dronov**
+
+Разработано с использованием:
+
+**Kotlin • Jetpack Compose • Room • Hilt • Clean Architecture**
+
+---
+
+<p align="center">
+
+### ⭐ Если проект оказался полезным — поставьте Star
+
+</p>
