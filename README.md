@@ -71,11 +71,18 @@
 
 ## 5. Dependency Injection (Hilt)
 
-**Модули:**
-- DataModule: создание Database и Dao
-- RepositoryModule: связывание интерфейса и реализации
+Проект использует Hilt для внедрения зависимостей.
 
-**Assisted Injection (EditNoteViewModel):**
+**Модули:**
+- **DataModule:** создание Room Database и Dao
+- **RepositoryModule:** связывание интерфейса NotesRepository с реализацией NotesRepositoryImpl
+
+**Что внедряется автоматически (через @Inject constructor):**
+- Все UseCase (AddNoteUseCase, EditNoteUseCase, DeleteNoteUseCase, и т.д.)
+- CreateNoteViewModel, NotesViewModel
+
+**Assisted Injection (для EditNoteViewModel):**
+Используется для передачи `noteId` из навигации:
 
 ```kotlin
 @HiltViewModel(assistedFactory = EditNoteViewModel.Factory::class)
@@ -90,8 +97,15 @@ class EditNoteViewModel @AssistedInject constructor(
 interface Factory {
     fun create(@Assisted("noteId") noteId: Int): EditNoteViewModel
 }
-```
 
+Использование в Screen:
+
+kotlin
+val viewModel: EditNoteViewModel = hiltViewModel(
+    creationCallback = { factory: EditNoteViewModel.Factory ->
+        factory.create(noteId)
+    }
+)
 ---
 
 ## 6. Технический стек
