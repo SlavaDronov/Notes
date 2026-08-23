@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Notes</string>
+    <string name="app_name">Заметки</string>  <!-- лучше перевести -->
     <string name="search">Поиск…</string>
     <string name="button_add_note">Кнопка добавления заметки</string>
     <string name="all_notes">Все заметки</string>
@@ -10,19 +10,19 @@
     <string name="first_image_from_note">Первая картинка из заметки</string>
     <string name="edit_note">Редактирование заметки</string>
     <string name="back">Назад</string>
-    <string name="delete_note">Удаление заметки</string>
-    <string name="add_photo_from_gallery">Добавить фото из галлереи</string>
+    <string name="delete_note">Удалить заметку</string>  <!-- исправлено -->
+    <string name="add_photo_from_gallery">Добавить фото из галереи</string>  <!-- исправлено -->
     <string name="title">Заголовок</string>
     <string name="save_note">Сохранить заметку</string>
     <string name="loading">Загрузка…</string>
-    <string name="create_note">Создать Заметку</string>
+    <string name="create_note">Создать заметку</string>  <!-- исправлено -->
     <string name="back_create">Назад</string>
-    <string name="add_photo_from_gallery_create">Добавить фото из галлереи</string>
+    <string name="add_photo_from_gallery_create">Добавить фото из галереи</string>  <!-- исправлено -->
     <string name="title_create">Заголовок</string>
     <string name="save_note_create">Сохранить заметку</string>
     <string name="note_something_down">Записать что-то</string>
-    <string name="remove_image_create">Удаление заметки</string>
-    <string name="image_from_gallery_create">Картинка из галлереи</string>
-    <string name="just_now">только что</string>
-    <string name="h_ago">%1$d h ago</string>
+    <string name="remove_image_create">Удалить изображение</string>  <!-- исправлено -->
+    <string name="image_from_gallery_create">Картинка из галереи</string>  <!-- исправлено -->
+    <string name="just_now">Только что</string>  <!-- исправлено -->
+    <string name="h_ago">%1$d ч назад</string>  <!-- исправлено -->
 </resources>
