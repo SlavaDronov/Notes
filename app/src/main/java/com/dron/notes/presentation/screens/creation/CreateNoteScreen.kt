@@ -34,11 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dron.notes.R
 import com.dron.notes.domain.ContentItem
 import com.dron.notes.presentation.screens.common.ContentList
 import com.dron.notes.presentation.ui.theme.CustomIcons
@@ -72,7 +74,7 @@ fun CreateNoteScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = "Create Note",
+                                text = stringResource(R.string.create_note),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -90,7 +92,7 @@ fun CreateNoteScreen(
                                         viewModel.processCommand(CreateNoteCommand.Back)
                                     },
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(R.string.back_create)
                             )
                         },
                         actions = {
@@ -101,7 +103,7 @@ fun CreateNoteScreen(
                                     }
                                     .padding(end = 24.dp),
                                 imageVector = CustomIcons.addPhoto,
-                                contentDescription = "Add photo from gallery",
+                                contentDescription = stringResource(R.string.add_photo_from_gallery_create),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -133,7 +135,7 @@ fun CreateNoteScreen(
                         ),
                         placeholder = {
                             Text(
-                                text = "Title",
+                                text = stringResource(R.string.title_create),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
@@ -188,7 +190,7 @@ fun CreateNoteScreen(
                         )
                     ) {
                         Text(
-                            text = "Save Note"
+                            text = stringResource(R.string.save_note_create)
                         )
                     }
                 }

@@ -30,11 +30,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dron.notes.R
 import com.dron.notes.domain.ContentItem
 import com.dron.notes.presentation.screens.common.ContentList  // ← ИСПОЛЬЗУЕМ ОБЩИЙ КОМПОНЕНТ
 import com.dron.notes.presentation.screens.editing.EditNoteCommand.*
@@ -75,7 +77,7 @@ fun EditNoteScreen(
                     TopAppBar(
                         title = {
                             Text(
-                                text = "Edit Note",
+                                text = stringResource(R.string.edit_note),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -94,29 +96,29 @@ fun EditNoteScreen(
                                         viewModel.processCommand(EditNoteCommand.Back)
                                     },
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(R.string.back)
                             )
                         },
                         actions = {
                             // КНОПКА УДАЛЕНИЯ ЗАМЕТКИ
                             Icon(
                                 modifier = Modifier
-                                    .padding(end = 16.dp)
+                                    .padding(end = 24.dp)
                                     .clickable {
                                         viewModel.processCommand(EditNoteCommand.Delete)
                                     },
                                 imageVector = Icons.Outlined.Delete,
-                                contentDescription = "Delete note"
+                                contentDescription = stringResource(R.string.delete_note)
                             )
                             // КНОПКА ДОБАВЛЕНИЯ ИЗОБРАЖЕНИЯ
                             Icon(
                                 modifier = Modifier
-                                    .padding(end = 24.dp)
+                                    .padding(end = 16.dp)
                                     .clickable {
                                         imagePicker.launch("image/*")
                                     },
                                 imageVector = CustomIcons.addPhoto,
-                                contentDescription = "Add photo from gallery",
+                                contentDescription = stringResource(R.string.add_photo_from_gallery),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
@@ -148,7 +150,7 @@ fun EditNoteScreen(
                         ),
                         placeholder = {
                             Text(
-                                text = "Title",
+                                text = stringResource(R.string.title),
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
@@ -200,7 +202,7 @@ fun EditNoteScreen(
                             disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                         )
                     ) {
-                        Text(text = "Save Note")
+                        Text(text = stringResource(R.string.save_note))
                     }
                 }
             }
@@ -215,7 +217,7 @@ fun EditNoteScreen(
         EditNoteState.Initial -> {
             // Показываем загрузку
             Text(
-                text = "Loading...",
+                text = stringResource(R.string.loading),
                 modifier = Modifier.padding(16.dp)
             )
         }

@@ -32,7 +32,12 @@ class EditNoteViewModel @AssistedInject constructor(
         viewModelScope.launch {
             _state.update {
                 val note = getNoteUseCase(noteId)
-                EditNoteState.Editing(note)
+                val content = if (note.content.lastOrNull() !is ContentItem.Text) {
+                    note.content + ContentItem.Text("")
+                } else {
+                    note.content
+                }
+                EditNoteState.Editing(note.copy(content = content))
             }
         }
     }

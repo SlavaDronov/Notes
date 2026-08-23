@@ -66,6 +66,7 @@ dependencies {
 
     implementation(libs.coil.compose)
     //implementation(libs.coil.network.okhttp)
+    implementation(libs.androidx.core.splashscreen)
 
     // ✅ ДОБАВИТЬ HILT NAVIGATION COMPOSE
     implementation(libs.androidx.hilt.navigation.compose)

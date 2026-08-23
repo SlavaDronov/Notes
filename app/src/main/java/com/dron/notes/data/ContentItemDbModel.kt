@@ -1,12 +1,28 @@
 package com.dron.notes.data
 
-import kotlinx.serialization.Serializable
+import androidx.room.Entity
+import androidx.room.ForeignKey
 
+@Entity(
+    tableName = "content",
+    primaryKeys = ["noteId", "order"],
+    foreignKeys = [
+        ForeignKey(
+            entity = NoteDbModel::class,
+            parentColumns = ["id"],
+            childColumns = ["noteId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 
-@Serializable
-sealed interface ContentItemDbModel {
-    @Serializable
-    data class Text(val content: String): ContentItemDbModel
-    @Serializable
-    data class Image(val url: String): ContentItemDbModel
+data class ContentItemDbModel(
+    val noteId: Int,
+    val contentType: ContentType,
+    val content: String,
+    val order: Int
+)
+
+enum class ContentType{
+    TEXT, IMAGE
 }

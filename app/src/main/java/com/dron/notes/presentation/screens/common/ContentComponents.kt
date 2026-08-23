@@ -23,11 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.dron.notes.R
 import com.dron.notes.domain.ContentItem
 
 /**
@@ -121,7 +123,7 @@ fun ImageContent(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp)),
             model = imageUrl,
-            contentDescription = "Image from gallery",
+            contentDescription = stringResource(R.string.image_from_gallery_create),
             contentScale = ContentScale.FillWidth
         )
         Icon(
@@ -133,7 +135,7 @@ fun ImageContent(
                     onDeleteImageClick()
                 },
             imageVector = Icons.Default.Close,
-            contentDescription = "Remove Image",
+            contentDescription = stringResource(R.string.remove_image_create),
             tint = MaterialTheme.colorScheme.onSurface
         )
     }
@@ -166,7 +168,7 @@ fun TextContent(
         ),
         placeholder = {
             Text(
-                text = "Note Something down",
+                text = stringResource(R.string.note_something_down),
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
             )
