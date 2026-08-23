@@ -10,6 +10,15 @@
 ![Hilt](https://img.shields.io/badge/Hilt-DI-3DDC84?style=for-the-badge\&logo=android\&logoColor=white)
 ![Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-orange?style=for-the-badge)
 
+
+# Notes — Приложение для заметок
+
+[![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+**🌍 Поддерживаемые языки: Русский | English**
+
 </p>
 
 ---
